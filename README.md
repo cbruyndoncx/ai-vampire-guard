@@ -28,6 +28,29 @@ No other dependencies. The script uses PEP 723 inline metadata — `uv run` inst
 
 ## Install (60 seconds)
 
+### Option A: Automatic Install (Recommended)
+
+Downloads the files and sets up Claude Code hooks in one step:
+
+```bash
+mkdir -p ~/.claude/scripts
+
+curl -o ~/.claude/scripts/install_vampire_guard.py \
+  https://raw.githubusercontent.com/cbruyndoncx/ai-vampire-guard/main/install_vampire_guard.py
+
+curl -o ~/.claude/scripts/ai_vampire_guard.py \
+  https://raw.githubusercontent.com/cbruyndoncx/ai-vampire-guard/main/ai_vampire_guard.py
+
+curl -o ~/.claude/scripts/config_default.json \
+  https://raw.githubusercontent.com/cbruyndoncx/ai-vampire-guard/main/config_default.json
+
+uv run ~/.claude/scripts/install_vampire_guard.py
+```
+
+Preview first with `--dry-run`, or remove later with `--uninstall`.
+
+### Option B: Manual Install
+
 ```bash
 mkdir -p ~/.claude/scripts
 
@@ -51,6 +74,8 @@ Written to ./ai_vampire_guard_2026-03-06.md
 ## Automatic Monitoring (Hooks)
 
 The real power is in Claude Code hooks — the guard runs automatically without you thinking about it.
+
+> **If you used the automatic installer (Option A), these hooks are already configured.** Skip to the Obsidian Integration section below.
 
 ### Post-Session Gauge (Stop Hook)
 
