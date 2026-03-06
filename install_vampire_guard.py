@@ -14,8 +14,9 @@ Usage:
 """
 
 import json
-import shutil
 import sys
+import urllib.request
+import urllib.error
 from pathlib import Path
 
 import click
@@ -28,29 +29,30 @@ SCRIPT_NAME = "ai_vampire_guard.py"
 CONFIG_NAME = "config_default.json"
 SETTINGS_PATH = Path.home() / ".claude" / "settings.json"
 
+REPO_BASE = "https://raw.githubusercontent.com/cbruyndoncx/ai-vampire-guard/main"
+DOWNLOAD_FILES = [SCRIPT_NAME, CONFIG_NAME]
+
 STOP_HOOK_CMD = f"uv run ~/.claude/scripts/{SCRIPT_NAME} --no-open 2>/dev/null || true"
 SUBMIT_HOOK_CMD = f"uv run ~/.claude/scripts/{SCRIPT_NAME} --check 2>/dev/null || true"
 
 
-def _find_source_files() -> tuple[Path, Path]:
-    """Locate the script and config relative to this installer.
+def _download_files(dry_run: bool) -> None:
+    """Download script and config from GitHub to ~/.claude/scripts/."""
+    if not dry_run:
+        SCRIPTS_DIR.mkdir(parents=True, exist_ok=True)
 
-    Checks same directory first (flat layout: repo root or ~/.claude/scripts/),
-    then parent directory (skill layout: scripts/ with config one level up).
-    """
-    installer_dir = Path(__file__).resolve().parent
-    script = installer_dir / SCRIPT_NAME
-    # Try same dir first (flat repo), then parent (skill layout)
-    config = installer_dir / CONFIG_NAME
-    if not config.exists():
-        config = installer_dir.parent / CONFIG_NAME
-    if not script.exists():
-        console.print(f"[red]Error:[/] {SCRIPT_NAME} not found at {script}")
-        sys.exit(1)
-    if not config.exists():
-        console.print(f"[red]Error:[/] {CONFIG_NAME} not found next to installer or one level up")
-        sys.exit(1)
-    return script, config
+    for filename in DOWNLOAD_FILES:
+        url = f"{REPO_BASE}/{filename}"
+        dest = SCRIPTS_DIR / filename
+        if dry_run:
+            console.print(f"  Would download {filename} → {dest}")
+        else:
+            try:
+                urllib.request.urlretrieve(url, dest)
+                console.print(f"  [green]Downloaded[/] {filename} → {dest}")
+            except urllib.error.URLError as e:
+                console.print(f"  [red]Error downloading {filename}:[/] {e}")
+                sys.exit(1)
 
 
 def _load_settings() -> dict:
@@ -145,22 +147,10 @@ def main(uninstall: bool, dry_run: bool) -> None:
 
 def _do_install(dry_run: bool) -> None:
     """Install script, config, and hooks."""
-    source_script, source_config = _find_source_files()
-    dest_script = SCRIPTS_DIR / SCRIPT_NAME
-    dest_config = SCRIPTS_DIR / CONFIG_NAME
-
     console.print("\n[bold]AI Vampire Guard — Install[/]\n")
 
-    # 1. Copy files
-    if dry_run:
-        console.print(f"  Would copy {source_script.name} → {dest_script}")
-        console.print(f"  Would copy {source_config.name} → {dest_config}")
-    else:
-        SCRIPTS_DIR.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(source_script, dest_script)
-        shutil.copy2(source_config, dest_config)
-        console.print(f"  [green]Copied[/] {SCRIPT_NAME} → {dest_script}")
-        console.print(f"  [green]Copied[/] {CONFIG_NAME} → {dest_config}")
+    # 1. Download files from GitHub
+    _download_files(dry_run)
 
     # 2. Add hooks
     settings = _load_settings()
@@ -184,7 +174,7 @@ def _do_install(dry_run: bool) -> None:
         console.print("[yellow]Dry run — no changes made.[/]")
     else:
         console.print("[green]Installed.[/] Run a quick test:")
-        console.print(f"  [dim]uv run {dest_script}[/]\n")
+        console.print(f"  [dim]uv run {SCRIPTS_DIR / SCRIPT_NAME}[/]\n")
 
 
 def _do_uninstall(dry_run: bool) -> None:

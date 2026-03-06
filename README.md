@@ -30,27 +30,24 @@ No other dependencies. The script uses PEP 723 inline metadata — `uv run` inst
 
 ### Option A: Automatic Install (Recommended)
 
-Downloads the files and sets up Claude Code hooks in one step:
+Run the installer — it downloads the script and config from GitHub, places them in `~/.claude/scripts/`, and configures Claude Code hooks:
 
 ```bash
-mkdir -p ~/.claude/scripts
-
-curl -o ~/.claude/scripts/install_vampire_guard.py \
-  https://raw.githubusercontent.com/cbruyndoncx/ai-vampire-guard/main/install_vampire_guard.py
-
-curl -o ~/.claude/scripts/ai_vampire_guard.py \
-  https://raw.githubusercontent.com/cbruyndoncx/ai-vampire-guard/main/ai_vampire_guard.py
-
-curl -o ~/.claude/scripts/config_default.json \
-  https://raw.githubusercontent.com/cbruyndoncx/ai-vampire-guard/main/config_default.json
-
-uv run ~/.claude/scripts/install_vampire_guard.py
+curl -sL https://raw.githubusercontent.com/cbruyndoncx/ai-vampire-guard/main/install_vampire_guard.py \
+  | uv run -
 ```
 
-Preview first with `--dry-run`, or remove later with `--uninstall`.
+Preview first with `--dry-run`, or remove later with `--uninstall`:
+
+```bash
+uv run ~/.claude/scripts/install_vampire_guard.py --dry-run
+uv run ~/.claude/scripts/install_vampire_guard.py --uninstall
+```
 
 ### Option B: Manual Install
 
+Download the script and config yourself, then configure hooks manually (see [Automatic Monitoring](#automatic-monitoring-hooks) below):
+
 ```bash
 mkdir -p ~/.claude/scripts
 
@@ -59,8 +56,6 @@ curl -o ~/.claude/scripts/ai_vampire_guard.py \
 
 curl -o ~/.claude/scripts/config_default.json \
   https://raw.githubusercontent.com/cbruyndoncx/ai-vampire-guard/main/config_default.json
-
-uv run ~/.claude/scripts/ai_vampire_guard.py
 ```
 
 You'll see:
