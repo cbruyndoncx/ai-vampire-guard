@@ -86,7 +86,7 @@ def _load_config(config_path: str | None = None) -> dict:
     result = dict(_DEFAULTS)
 
     # 1. Load config_default.json (shipped with skill)
-    skill_dir = Path(__file__).resolve().parent.parent
+    skill_dir = Path(__file__).resolve().parent
     default_cfg = skill_dir / "config_default.json"
     if default_cfg.exists():
         try:
